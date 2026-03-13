@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Massa Específica</title>
+    <!--vou testar umas coisas no css aqui professora kkkk, então pode pular essa parte
+    o Html+java script começa a partir da linha 138-->
+<style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 0 20px;
+            background: #1a1020;
+            color: #f0d6e8;
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            margin-bottom: 20px;
+            color: #f7c5df;
+        }
+
+        h2 {
+            font-size: 1rem;
+            color: #c98ab0;
+            margin-bottom: 10px;
+        }
+        
+        .container{ 
+            width: 55%;
+            margin: 0 auto;
+            border: 2px solid #4a2040;
+            padding: 2px;
+            margin-bottom: 10px;
+            
+        }
+        
+        img {
+            max-width: 100%;
+            height: auto;
+            box-sizing: border-box;
+            display: block;
+        }
+
+        .card {
+            background: #261630;
+            border: 1px solid #4a2040;
+            border-radius: 6px;
+            padding: 16px 20px;
+            margin-bottom: 16px;
+        }
+
+        label {
+            font-size: 0.85rem;
+            color: #b07090;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        input {
+            width: 100%;
+            padding: 7px 10px;
+            border: 1px solid #5a2e50;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            box-sizing: border-box;
+            background: #1f1228;
+            color: #f0d6e8;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #e0559a;
+        }
+
+        .material-row {
+            display: grid;
+            grid-template-columns: 1fr 120px 120px 36px;
+            gap: 10px;
+            align-items: end;
+            margin-bottom: 10px;
+        }
+
+        .field { display: flex; flex-direction: column; }
+
+        .remover-botao {
+            background: #2e1020;
+            border: 1px solid #7a2040;
+            color: #f06080;
+            border-radius: 4px;
+            font-size: 1.1rem;
+            height: 34px;
+            cursor: pointer;
+        }
+
+        .remover-botao:hover { background: #3e1828; }
+
+        .add-botao {
+            background: #261630;
+            border: 1px dashed #6a3560;
+            border-radius: 4px;
+            padding: 7px 14px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            color: #c98ab0;
+            margin-top: 4px;
+        }
+
+        .add-botao:hover { background: #301840; }
+
+        .botao-calc {
+            background: #c2377a;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 28px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .botao-calc:hover { background: #a82868; }
+
+        .resultado-card {
+            background: #261630;
+            border: 1px solid #4a2040;
+            border-left: 4px solid #c2377a;
+            border-radius: 6px;
+            padding: 14px 18px;
+            margin-bottom: 12px;
+        }
+
+        .resultado-card h3 {
+            margin: 0 0 10px;
+            font-size: 1.1rem;
+            color: #f7c5df;
+        }
+
+        .resultado-card p {
+            margin: 4px 0;
+            font-size: 0.9rem;
+            color: #c98ab0;
+        }
+
+        .resultado-card p strong {
+            color: #f0d6e8;
+        }
+
+    </style>
+</head>
+<body>
+
+<h1>Calculadora de Massa Específica</h1>
+<div class="container">
+    <img src="https://static.wixstatic.com/media/dfa874_40fc2c5f6a6c45ff8b062c6d8b820335.png" alt="imagem não carregada">
+</div>
+<div class="card">
+    <div class="field" style="max-width: 200px;">
+        <label for="volume">Volume da caçamba (m³)</label>
+        <!-- LEMBRAR: type="number" NÃO ACEITA EM PORTUGUES "numero") -->
+        <input type="number" id="volume" value="7" min="0.01" step="0.1">
+    </div>
+</div>
+
+<div class="card">
+    <h2>Materiais</h2>
+    <div id="lista"></div>
+    <button class="add-botao" onclick="adicionar()">+ Adicionar material</button>
+</div>
+
+<button class="botao-calc" onclick="calcular()">Calcular</button>
+
+<div id="resultado"></div>
+
+<script>
+    let materiais = [
+        { nome: "Areia",    massa: 5000, volume: 1858.73 },
+        { nome: "Brita",    massa: 4000, volume: 1509.43 },
+        { nome: "Cascalho", massa: 3500, volume: 1166.67 },
+    ];
+
+    function renderizar() {
+        const lista = document.getElementById("lista");
+        lista.innerHTML = "";
+        materiais.forEach((m, i) => {
+            lista.innerHTML += `
+            <div class="material-row">
+                <div class="field">
+                    <label>Nome</label>
+                    <input type="text" value="${m.nome}" oninput="materiais[${i}].nome = this.value">
+                </div>
+                <div class="field">
+                    <label>Massa (g)</label>
+                    <input type="number" value="${m.massa}" min="0" oninput="materiais[${i}].massa = parseFloat(this.value) || 0">
+                </div>
+                <div class="field">
+                    <label>Volume (mL)</label>
+                    <input type="number" value="${m.volume}" min="0.001" step="0.01" oninput="materiais[${i}].volume = parseFloat(this.value) || 0.001">
+                </div>
+                <button class="remover-botao" onclick="remover(${i})" title="Remover">×</button>
+            </div>`;   
+        });
+    }
+
+    function adicionar() {
+        materiais.push({ nome: "Novo material", massa: 1000, volume: 500 });
+        renderizar();
+    }
+
+    function remover(i) {
+        if (materiais.length === 1) return;
+        materiais.splice(i, 1);
+        renderizar();
+        document.getElementById("resultado").innerHTML = "";
+    }
+
+    function calcular() {
+        const volumeCacamba = parseFloat(document.getElementById("volume").value);
+        const div = document.getElementById("resultado");
+        let html = "";
+
+        
+        materiais.forEach(m => {
+            const me_gml  = m.massa / m.volume;
+            const me_kgm3 = me_gml * 1000;
+            const massaKg = me_kgm3 * volumeCacamba;
+            const massaTon = massaKg / 1000;
+
+            html += `
+            <div class="resultado-card">
+                <h3>${m.nome}</h3>
+                <p>Massa específica: <strong>${me_gml.toFixed(4)} g/mL</strong></p>
+                <p>Massa específica: <strong>${me_kgm3.toFixed(2)} kg/m³</strong></p>
+                <p>Carga em ${volumeCacamba} m³: <strong>${massaKg.toLocaleString('pt-BR', {maximumFractionDigits: 0})} kg</strong> / <strong>${massaTon.toFixed(2)} t</strong></p>
+            </div>`;
+        });
+
+        div.innerHTML = html;
+    }
+
+    renderizar();
+</script>
+</body>
+</html>
